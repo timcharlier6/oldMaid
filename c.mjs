@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 
 const interactivePairSelection = (hand) => {
-    const remainingHand = [...hand];
+    let remainingHand = [...hand];
 
     const promptPairSelection = () => {
         inquirer
@@ -11,42 +11,52 @@ const interactivePairSelection = (hand) => {
                     name: 'selectedCards',
                     message: 'Select two pairs:',
                     choices: remainingHand,
-                    validate: function(input) {
-                        if (input.length !== 2 || input[0].split(" ")[0] !== input[1].split(" ")[0]) {
-                            return 'Please select a pair.';
-                        }
-                        return true;
-                    }
+                    validate: validatePairSelection
                 }
             ])
-            .then(answers => {
-                const indexFirstCard = remainingHand.indexOf(answers.selectedCards[0]);
-                const indexSecondCard = remainingHand.indexOf(answers.selectedCards[1]);
-
-                if (indexFirstCard !== -1 && indexSecondCard !== -1) {
-                    remainingHand.splice(indexFirstCard, 1);
-                    remainingHand.splice(indexSecondCard - 1, 1);
-                }
-
-                const pairsRemaining = remainingHand.reduce((pairs, card, index) => {
-                    const cardValue = card.split(' ')[0];
-                    const pairIndex = remainingHand.findIndex((otherCard, otherIndex) => {
-                        return index !== otherIndex && otherCard.split(' ')[0] === cardValue;
-                    });
-                    if (pairIndex !== -1) {
-                        pairs.push(index, pairIndex);
-                    }
-                    return pairs;
-                }, []);
-
-                if (pairsRemaining.length > 0) {
-                    console.log(`There are ${pairsRemaining.length / 2} pairs remaining.`);
-                    promptPairSelection();
-                } else {
-                    console.log("No pairs left.");
-                }
-            });
+            .then(handlePairSelection);
     }
+
+    const validatePairSelection = (input) => {
+        if (input.length !== 2 || input[0].split(" ")[0] !== input[1].split(" ")[0]) {
+            return 'Please select a pair.';
+        }
+        return true;
+    };
+
+    const handlePairSelection = (answers) => {
+        const [firstCard, secondCard] = answers.selectedCards;
+        const indexFirstCard = remainingHand.indexOf(firstCard);
+        const indexSecondCard = remainingHand.indexOf(secondCard);
+
+        if (indexFirstCard !== -1 && indexSecondCard !== -1) {
+            remainingHand.splice(indexFirstCard, 1);
+            remainingHand.splice(indexSecondCard - 1, 1);
+        }
+
+        const pairsRemaining = findPairs(remainingHand);
+
+        if (pairsRemaining.length > 0) {
+            console.log(`There are ${pairsRemaining.length / 2} pairs remaining.`);
+            promptPairSelection();
+        } else {
+            console.log("No pairs left.");
+        }
+    };
+
+    const findPairs = (hand) => {
+        const pairs = [];
+        hand.forEach((card, index) => {
+            const cardValue = card.split(' ')[0];
+            const pairIndex = hand.findIndex((otherCard, otherIndex) => {
+                return index !== otherIndex && otherCard.split(' ')[0] === cardValue;
+            });
+            if (pairIndex !== -1) {
+                pairs.push(index, pairIndex);
+            }
+        });
+        return pairs;
+    };
 
     promptPairSelection();
 };
