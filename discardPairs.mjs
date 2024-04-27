@@ -2,6 +2,7 @@ import chalk from "chalk";
 import inquirer from 'inquirer';
 import countPairs from "./countPairs.js";
 import filterHand from "./filterHand.mjs";
+import startGame from "./startGame.mjs";
 
 const discardPairs = (playerHand, computerHand, language) => {
     let en = language === 'English';
@@ -46,10 +47,8 @@ const discardPairs = (playerHand, computerHand, language) => {
             promptPairSelection();
         } else {
             en ? console.log(chalk.green("No pairs left.")) : console.log(chalk.green("Plus de pairs."));
-            return {
-                playerHand: dirtyHand,
-                computerHand: filteredComputerHand,
-            };
+            let filteredHands = { playerHand: dirtyHand, computerHand: filteredComputerHand };
+            startGame(filteredHands);
         }
     };
 
