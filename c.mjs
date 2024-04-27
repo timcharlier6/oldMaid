@@ -83,14 +83,26 @@ class OldMaid {
 
         return hands;
     }
-
-    sortHand() {
-    }
 }
 
-const discardPairs = (hand, language) => {
+const countPairs = (hand) => {
+    const pairs = [];
+    hand.forEach((card, index) => {
+        const pairIndex = hand.findIndex((otherCard, otherIndex) => {
+            return index !== otherIndex && otherCard.split(' ')[0] === card.split(' ')[0];
+        });
+        if (pairIndex !== -1) {
+            pairs.push(index, pairIndex);
+        }
+    });
+    return pairs;
+};
+
+const discardPairs = (playerHand, computerHand, language) => {
     let en = language === 'English';
-    let dirtyHand = [...hand];
+    let dirtyHand = [...playerHand];
+    let dirtyComputerHand = [...computerHand];
+
     console.log(en ? '\n╭─────────────────────────────────────╮\n│ You should remove all your pairs... │\n╰─────────────────────────────────────╯\n' : '\n╭─────────────────────────────────────────╮\n│ Vous devez enlevez toutes vos paires... │\n╰─────────────────────────────────────────╯\n');
 
     const promptPairSelection = () => {
@@ -121,33 +133,69 @@ const discardPairs = (hand, language) => {
         const pairsRemaining = countPairs(dirtyHand);
 
         if (pairsRemaining.length > 0) {
-            en ? console.log(`There are ${pairsRemaining.length / 2} pairs remaining.`) : console.log(`Il reste ${pairsRemaining.length / 2 } pairs.`);
+            en ? console.log(`You have ${pairsRemaining.length / 2} pairs remaining.`) : console.log(`Il vous reste ${pairsRemaining.length / 2 } pairs.`);
             promptPairSelection();
         } else {
             en ? console.log("No pairs left.") : console.log("Plus de pairs.");
         }
     };
 
-    const countPairs = (hand) => {
-        const pairs = [];
-        hand.forEach((card, index) => {
-            const pairIndex = hand.findIndex((otherCard, otherIndex) => {
-                return index !== otherIndex && otherCard.split(' ')[0] === card.split(' ')[0];
-            });
-            if (pairIndex !== -1) {
-                pairs.push(index, pairIndex);
-            }
-        });
-        return pairs;
-    };
+
+    dirtyComputerHand = filterHand(dirtyComputerHand);
+
+    const removedCards = computerHand.length - dirtyComputerHand.length;
+    console.log(en ? `\nNumber of cards removed from computer's hand: ${removedCards}` : `\nNombre de cartes retirées de la main de l'ordinateur : ${removedCards}`);
+    console.log(computerHand);
+    console.log(dirtyComputerHand);
 
     promptPairSelection();
 };
 
+
+
+function filterHand(hand, filteredHand = [], index = 0) {
+    function countOccurrences(hand, card) {
+            let count = 0;
+        for (let i = 0; i < hand.length; i++) {
+            if (hand[i].split(" ")[0] === card.split(" ")[0]) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    if (index >= hand.length) {
+        return filteredHand;
+    }
+
+    let card = hand[index];
+    let count = countOccurrences(hand, card);
+
+    // Here you can implement your conditions for different counts
+    if (count === 4) {
+    } else if (count === 3) {
+        filteredHand.push(card); // Push one card
+        // Discard two cards
+        let discardedCount = 0;
+        for (let i = index; i < hand.length && discardedCount < 2; i++) {
+            if (hand[i].split(" ")[0] === card.split(" ")[0]) {
+                hand.splice(i, 1);
+                discardedCount++;
+            }
+        }
+    } else if (count === 2) {
+    } else {
+        filteredHand.push(card);
+    }
+
+    return filterHand(hand, filteredHand, index + 1);
+}
+
 (async () => {
     const selectedLanguage = await selectPromise;
     const oldMaid = new OldMaid(selectedLanguage);
-    discardPairs(oldMaid.hands[0], selectedLanguage);
+    // Pass both player's and computer's hands to discardPairs function
+    discardPairs(oldMaid.hands[0], oldMaid.hands[1], selectedLanguage);
 })();
 
 
