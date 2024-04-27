@@ -1,5 +1,7 @@
 import chalk from "chalk";
 import inquirer from 'inquirer';
+import countPairs from "./countPairs.js";
+import filterHand from "./filterHand.mjs";
 
 const discardPairs = (playerHand, computerHand, language) => {
     let en = language === 'English';
@@ -52,3 +54,5 @@ const discardPairs = (playerHand, computerHand, language) => {
 
     promptPairSelection();
 };
+
+export default discardPairs;

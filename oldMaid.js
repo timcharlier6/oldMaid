@@ -54,3 +54,5 @@ class OldMaid {
         return hands;
     }
 }
+
+module.exports = OldMaid;

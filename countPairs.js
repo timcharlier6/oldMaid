@@ -10,3 +10,6 @@ const countPairs = (hand) => {
     });
     return pairs;
 };
+
+module.exports = countPairs;
+

@@ -1,3 +1,7 @@
+import OldMaid from './oldMaid.js';
+import selectPromise from './language.mjs';
+import discardPairs from './discardPairs.mjs';
+
 
 (async () => {
     const selectedLanguage = await selectPromise;

@@ -1,5 +1,11 @@
-import chalk from "chalk";
 import select from "cli-select";
+import readline from 'readline';
+import chalk from 'chalk';
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
 console.log(chalk.yellow("SELECT:"));
 
@@ -20,3 +26,4 @@ const selectPromise = new Promise((resolve, reject) => {
     );
 });
 
+export default selectPromise;

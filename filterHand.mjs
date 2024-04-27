@@ -35,3 +35,5 @@ function filterHand(hand, filteredHand = [], index = 0) {
 
     return filterHand(hand, filteredHand, index + 1);
 }
+
+export default filterHand;
