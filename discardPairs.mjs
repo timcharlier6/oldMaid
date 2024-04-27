@@ -9,18 +9,18 @@ const discardPairs = (playerHand, computerHand, language) => {
     let dirtyHand = [...playerHand];
     let dirtyComputerHand = [...computerHand];
 
-    console.log(en ? chalk.yellow('\n╭─────────────────────────────────────╮\n│ You should remove all your pairs... │\n╰─────────────────────────────────────╯\n') : chalk.yellow('\n╭─────────────────────────────────────────╮\n│ Vous devez enlevez toutes vos paires... │\n╰─────────────────────────────────────────╯\n'));
+    console.log(en ? chalk.cyan('\n╭─────────────────────────────────────╮\n│ You should remove all your pairs... │\n╰─────────────────────────────────────╯\n') : chalk.cyan('\n╭─────────────────────────────────────────╮\n│ Vous devez enlevez toutes vos paires... │\n╰─────────────────────────────────────────╯\n'));
     let filteredComputerHand = filterHand(dirtyComputerHand);
     const removedCards = computerHand.length - filteredComputerHand.length;
-    console.log(en ? chalk.yellow(`\nComputer has removed ${removedCards / 2} pairs from his hand, it remains ${filteredComputerHand.length} cards.`) : chalk.yellow(`\nL'ordinateur a defausse ${removedCards / 2} de sa main, il lui reste ${filteredComputerHand.length} cartes.`));
-    console.log(computerHand + '\n' + filteredComputerHand);
+    console.log(en ? chalk.blue(`\nComputer has removed ${removedCards / 2} pairs from his hand, he has ${filteredComputerHand.length} cards.\n`) : chalk.blue(`\nL'ordinateur a defausse ${removedCards / 2} cartes de sa main, il lui reste ${filteredComputerHand.length} cartes.\n`));
+    //console.log(computerHand + '\n' + filteredComputerHand);
 
     const promptPairSelection = () => {
         inquirer.prompt([
             {
                 type: 'checkbox',
                 name: 'selectedCards',
-                message: en ? chalk.cyan('Select two pairs to discard:') : chalk.cyan('Selectionnez deux pairs a defausser:'),
+                message: en ? chalk.cyan('Select a pair or a sqare to discard:') : chalk.cyan('Selectionnez une pair ou un carre a defausser:'),
                 choices: dirtyHand,
                 validate: validatePairSelection
             }
@@ -28,16 +28,24 @@ const discardPairs = (playerHand, computerHand, language) => {
     }
 
     const validatePairSelection = (input) => {
-        if (input.length !== 2 || input[0].split(" ")[0] !== input[1].split(" ")[0]) {
-            return en ? chalk.red('Please select a pair.') : chalk.red('Veuillez selectionner une pair.');
+        let valid = input.length === 2 && input[0].split(" ")[0] === input[1].split(" ")[0] || input.length === 4 && input[0].split(" ")[0] === input[1].split(" ")[0] && input[1].split(" ")[0] === input[2].split(" ")[0] && input[2].split(" ")[0] === input[3].split(" ")[0] ;
+            if (!valid) {
+            return en ? chalk.red('Please select pairs!') : chalk.red('Veuillez selectionner des pairs!');
         } else {
             return true;
         }
     };
 
     const handlePairSelection = (answers) => {
-        const [firstCard, secondCard] = answers.selectedCards;
-        const remainingChoices = dirtyHand.filter(card => card !== firstCard && card !== secondCard);
+        let remainingChoices;
+        if (answers.selectedCards.length === 2) {
+            const [firstCard, secondCard] = answers.selectedCards;
+            remainingChoices = dirtyHand.filter(card => card !== firstCard && card !== secondCard);
+        } else if (answers.selectedCards.length === 4) {
+            const [firstCard, secondCard, thirdCard, fourthCard] = answers.selectedCards;
+            remainingChoices = dirtyHand.filter(card => card !== firstCard && card !== secondCard && card !== thirdCard && card !== fourthCard);
+        }
+
         dirtyHand = [...remainingChoices];
 
         const pairsRemaining = countPairs(dirtyHand);
@@ -46,9 +54,9 @@ const discardPairs = (playerHand, computerHand, language) => {
             en ? console.log(chalk.yellow(`You have ${pairsRemaining.length / 2} pairs remaining.`)) : console.log(chalk.yellow(`Il vous reste ${pairsRemaining.length / 2 } pairs.`));
             promptPairSelection();
         } else {
-            en ? console.log(chalk.green("No pairs left.")) : console.log(chalk.green("Plus de pairs."));
+            en ? console.log(chalk.green("No pairs left. Starting game...")) : console.log(chalk.green("Plus de pairs. Debut du jeu..."));
             let filteredHands = { playerHand: dirtyHand, computerHand: filteredComputerHand };
-            startGame(filteredHands);
+            startGame(filteredHands, en);
         }
     };
 

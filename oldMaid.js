@@ -1,4 +1,5 @@
 
+
 class OldMaid {
     constructor(language) {
         this.suits = ['\u2665', '\u2666', '\u2663', '\u2660'];
