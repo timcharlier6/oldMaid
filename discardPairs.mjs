@@ -9,6 +9,10 @@ const discardPairs = (playerHand, computerHand, language) => {
     let dirtyComputerHand = [...computerHand];
 
     console.log(en ? chalk.yellow('\n╭─────────────────────────────────────╮\n│ You should remove all your pairs... │\n╰─────────────────────────────────────╯\n') : chalk.yellow('\n╭─────────────────────────────────────────╮\n│ Vous devez enlevez toutes vos paires... │\n╰─────────────────────────────────────────╯\n'));
+    let filteredComputerHand = filterHand(dirtyComputerHand);
+    const removedCards = computerHand.length - filteredComputerHand.length;
+    console.log(en ? chalk.yellow(`\nComputer has removed ${removedCards / 2} pairs from his hand, it remains ${filteredComputerHand.length} cards.`) : chalk.yellow(`\nL'ordinateur a defausse ${removedCards / 2} de sa main, il lui reste ${filteredComputerHand.length} cartes.`));
+    console.log(computerHand + '\n' + filteredComputerHand);
 
     const promptPairSelection = () => {
         inquirer.prompt([
@@ -42,15 +46,12 @@ const discardPairs = (playerHand, computerHand, language) => {
             promptPairSelection();
         } else {
             en ? console.log(chalk.green("No pairs left.")) : console.log(chalk.green("Plus de pairs."));
+            return {
+                playerHand: dirtyHand,
+                computerHand: filteredComputerHand,
+            };
         }
     };
-
-
-    dirtyComputerHand = filterHand(dirtyComputerHand);
-
-    const removedCards = computerHand.length - dirtyComputerHand.length;
-    console.log(en ? chalk.yellow(`\nComputer has removed ${removedCards / 2} pairs from his hand, it remains ${dirtyComputerHand.length} cards.`) : chalk.yellow(`\nL'ordinateur a defausse ${removedCards / 2} de sa main, il lui reste ${dirtyComputerHand.length} cartes.`));
-    console.log(computerHand + '\n' + dirtyComputerHand);
 
     promptPairSelection();
 };
