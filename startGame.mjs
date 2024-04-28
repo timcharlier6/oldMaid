@@ -56,7 +56,7 @@ let startGame = (hands, isEnglish) => {
             while (j < hand.length) {
                 if (hand[i].split(" ")[0] === hand[j].split(" ")[0]) {
                     // Remove the pair
-                    console.log(en ? chalk.blue(`Removing ${hand[j]} and ${hand[i]}`) : chalk.green(`Vous vous debarassez de ${hand[i]} et ${hand[j]}`));
+                    console.log(en ? chalk.green(`Removing ${hand[j]} and ${hand[i]}`) : chalk.green(`Vous vous debarassez de ${hand[i]} et ${hand[j]}`));
                     hand.splice(j, 1);
                     hand.splice(i, 1);
                     i = 0; // Reset i to check for new pairs
@@ -78,7 +78,8 @@ let startGame = (hands, isEnglish) => {
         playerHand.push(newCard);
         console.log(en ? chalk.magenta(`\nYou took ${newCard}.\n`) : chalk.magenta(`\nVous avez pris ${newCard}\n`));
         playerHand = removePlayerPair(playerHand);
-        console.log(chalk.yellow(en ? `\nYou have ${playerHand.length} cards in your hand.\n` : `\nVous avez ${playerHand.length} cartes dans votre main.\n`));
+        console.log(chalk.yellow(en ? `\nYou have ${playerHand.length} cards in your hand.` : `\nVous avez ${playerHand.length} cartes dans votre main.`));
+        console.log(chalk.yellow(en ? `Computer has ${computerHand.length} cards.\n` : `\nL\'ordinateur a ${computerHand.length} cartes.\n`));
     };
 
     const computerDrawCard = () => {
@@ -87,16 +88,25 @@ let startGame = (hands, isEnglish) => {
         computerHand.push(cardWithdraw);
         console.log(en ? chalk.blue(`\nComputer took ${cardWithdraw} from your hand.\n`) : chalk.blue(`\nL\'ordinateur a pris ${cardWithdraw} de votre main.\n`));
         computerHand = removeComputerPair(computerHand);
-        console.log(chalk.blue(en ? `\nComputer's hand has ${computerHand.length} cards.\n` : `\nLa main de l'ordinateur a ${computerHand.length} cartes.\n`));
+        console.log(chalk.yellow(en ? `\nComputer's hand has ${computerHand.length} cards.\n` : `\nLa main de l'ordinateur a ${computerHand.length} cartes.\n`));
+        console.log(chalk.yellow(en ? `\nYou have ${playerHand.length} cards in your hand.` : `\nVous avez ${playerHand.length} cartes dans votre main.`));
     };
 
     const playRound = async () => {
-        console.log(chalk.yellow(en ? '\nYou\'re hand:\n' : '\nVotre main\n'));
-        console.log(chalk.yellow(playerHand));
+        console.log(chalk.cyan(en ? '\nYou\'re hand:\n' : '\nVotre main\n'));
+        console.log(chalk.cyan(playerHand));
         console.log(" ");
         await promptPlayer();
+        if (computerHand.length === 0 || playerHand === 0) {
+            gameOver();
+            return;
+        }
         pickRandomCard();
         await promptComputer();
+        if (computerHand.length === 0 || playerHand === 0) {
+            gameOver();
+            return;
+        }
         computerDrawCard();
     };
 
@@ -105,9 +115,11 @@ let startGame = (hands, isEnglish) => {
         if (playerHand.length === 0) {
             console.log(chalk.green('\tYou Win!'));
             console.log(chalk.bold(en ? `\t\tComputer has the ${computerHand[0]}` : `\t\tL'ordinateur a la ${computerHand[0]}\n\n`));
-        } else {
+        } else if (computerHand.length === 0) {
             console.log(chalk.red('\tYou Lose!'));
             console.log(chalk.bold(en ? `\t\tYou have the ${playerHand[0]}` : `\t\tVous avez la ${playerHand[0]}\n\n`));
+        } else {
+            console.log('error');
         }
     };
 
@@ -115,7 +127,7 @@ let startGame = (hands, isEnglish) => {
         console.log(en ? chalk.cyan('\n╭────────────────────────────────────────────────────────╮\n│ You should pick random cards from opponent\'s hand          │\n╰────────────────────────────────────────────────────────╯\n') : chalk.cyan('\n╭────────────────────────────────────────────────────────────╮\n│ Vous devez choisir des cartes au hasard dans la main de votre │\n│ adversaire                                                    │\n╰────────────────────────────────────────────────────────────╯\n'));
 
 
-        while (playerHand.length > 0 && computerHand.length > 0) {
+        while (playerHand.length > 0 || computerHand.length > 0) {
             await playRound();
         }
         gameOver();
